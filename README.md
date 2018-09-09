@@ -10,7 +10,7 @@ Instructions
 
 Open terminal and run the command
 
-    sudo curl -o ~/Desktop/AMD_audio_cloverALC-130.sh https://raw.githubusercontent.com/AlGreyy/AMD_Ryzen-audio_CloverALC/master/AMD_audio_cloverALC-130.sh && sudo chmod +x ~/Desktop/AMD_audio_cloverALC-130.sh && sudo ~/Desktop/AMD_audio_cloverALC-130.sh
+    bash <(curl -s https://raw.githubusercontent.com/AlGreyy/AMD_Ryzen-audio_CloverALC/master/AMD_audio_cloverALC-130.sh)
 
 
 Support
