@@ -1483,16 +1483,19 @@ case "$gCodec" in
 # esac
 
 # if [ $choice2a = y ]; then
-while true
-do
-read -p "Motherboard (300/200/x299/x99/Other = n): " choice2
-    case "$choice2" in
-        300|200|x299|X299 ) gController=Kaby; break;;
-        x99|X99 ) gController=x99; break;;
-        [nN]* ) gController=n; break;;
-        * ) echo "Try again...";;
-    esac
-done
+
+#   we don't need that on ryzen
+#while true
+#do
+#read -p "Motherboard (300/200/x299/x99/Other = n): " choice2
+#    case "$choice2" in
+#        300|200|x299|X299 ) gController=Kaby; break;;
+#        x99|X99 ) gController=x99; break;;
+#        [nN]* ) gController=n; break;;
+#        * ) echo "Try again...";;
+#    esac
+#done
+
 # fi
 
 esac
