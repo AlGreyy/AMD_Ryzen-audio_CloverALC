@@ -972,7 +972,76 @@ fi
 if [ -z "${gCodecsInstalled}" ]; then
     echo ""
     echo "No audio codec detected"
+
+    echo "Downloading AMD audio patches..."
+    hDownloadLink="https://raw.githubusercontent.com/AlGreyy/AMD_Ryzen-audio_CloverALC/master/config_amd_hda.plist"
+    sudo curl -o "/tmp/config_amd_hda.plist" $hDownloadLink
+
+    echo "Trying to patch your audio device..."
+    echo "Your audio device (VendorID,ProductID): $(ioreg -rxn $audiodevice | grep IOName | sed -e 's/.*pci//' -e 's/"//') "
+    if [[ $(ioreg -rxn $audiodevice | grep IOName | sed -e 's/.*pci//' -e 's/\"//' | grep -c "1002") = 0 ]] && [[ $(ioreg -rxn $audiodevice | grep IOName | sed -e 's/.*pci//' -e 's/\"//' | grep -c "1022") = 0 ]]; then
+        echo ""
+        echo "Error: Can't patch audio controller now. Try to reboot and run the script again. If error is still there, please report the issue. Save this output (CMD + A) to a text file. Also, dump IOReg and attach config.plist."
+    else
+        echo "Adding KextToPatches to config.plist for your audio device"
+        sudo /usr/libexec/PlistBuddy -c "Print ':KernelAndKextPatches:KextsToPatch:0'" /tmp/config_amd_hda.plist -x > "/tmp/amdk2p.plist"
+    if [[ $(ioreg -rxn $audiodevice | grep IOName | sed -e 's/.*pci//' -e 's/\"//' | grep -c "1457") = 1 ]]; then
+        sudo /usr/libexec/PlistBuddy -c "Print ':KernelAndKextPatches:KextsToPatch:1'" /tmp/config_amd_hda.plist -x > "/tmp/amdk2p2.plist"
+    fi
+    if [[ $(ioreg -rxn $audiodevice | grep IOName | sed -e 's/.*pci//' -e 's/\"//' | grep -c "15e3") = 1 ]]; then
+        sudo /usr/libexec/PlistBuddy -c "Print ':KernelAndKextPatches:KextsToPatch:2'" /tmp/config_amd_hda.plist -x > "/tmp/amdk2p2.plist"
+    fi
+
+    # verify config.plist/KernelAndKextPatches:KextsToPatch
+    ktpexisting=$(sudo /usr/libexec/PlistBuddy -c "Print ':KernelAndKextPatches'" /tmp/config.plist)
+    if [ -z "${ktpexisting}" ]; then
+        sudo /usr/libexec/PlistBuddy -c "Add KernelAndKextPatches:KextsToPatch array" /tmp/config.plist
+    fi
+
+    ktpexisting=$(sudo /usr/libexec/PlistBuddy -c "Print ':KernelAndKextPatches:KextsToPatch:'" /tmp/config.plist)
+
+    if [ -z "${ktpexisting}" ]; then
+    sudo /usr/libexec/PlistBuddy -c "Add KernelAndKextPatches:KextsToPatch array" /tmp/config.plist
+    fi
+
+    ktptotal=$(sudo /usr/libexec/PlistBuddy -c "Print ':KernelAndKextPatches:KextsToPatch:'" /tmp/config.plist | grep -c "Name")
+    sudo /usr/libexec/PlistBuddy -c "Add :KernelAndKextPatches:KextsToPatch:$ktptotal dict" /tmp/config.plist
+    sudo /usr/libexec/PlistBuddy -c "Merge /tmp/amdk2p.plist ':KernelAndKextPatches:KextsToPatch:$ktptotal'" /tmp/config.plist
+
+    ktptotal=$(sudo /usr/libexec/PlistBuddy -c "Print ':KernelAndKextPatches:KextsToPatch:'" /tmp/config.plist | grep -c "Name")
+    sudo /usr/libexec/PlistBuddy -c "Add :KernelAndKextPatches:KextsToPatch:$ktptotal dict" /tmp/config.plist
+    sudo /usr/libexec/PlistBuddy -c "Merge /tmp/amdk2p2.plist ':KernelAndKextPatches:KextsToPatch:$ktptotal'" /tmp/config.plist
+
+    echo "[ADDED]"
+    sudo rm -R /tmp/amdk2p.plist
+    sudo rm -R /tmp/amdk2p2.plist
+    sudo rm -R /tmp/config_amd_hda.plist
+
+    case $gSysName in
+
+    "High Sierra"|"Sierra"|"El Capitan"|"Yosemite" )
+    echo "Rebuilding kernel cache..."
+    sudo rm -R /System/Caches/com.apple.kext.caches
+    sudo rm -R /System/Library/PrelinkedKernels/prelinkedkernel
+    sudo touch $gExtensionsDirectory
+    sudo kextcache -U /
+    ;;
+
+    "Mavericks"|"Mountain Lion" )
+    echo "Rebuilding kernel cache..."
+    sudo touch $gExtensionsDirectory
+    echo "Allow a few minutes for kernel cache rebuild."
+    ;;
+
+    esac
+
+    echo ""
+    echo "Reboot PC now."
+
+    sudo cp -R "/tmp/config.plist" "$gCloverDirectory/config.plist"
+
     echo "To save a Copy of this Terminal session: Terminal/Shell/Export Text As ..."
+
     exit 1
 fi
 
