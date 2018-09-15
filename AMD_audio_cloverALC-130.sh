@@ -1039,6 +1039,7 @@ if [ -z "${gCodecsInstalled}" ]; then
     echo "Reboot PC now."
 
     sudo cp -R "/tmp/config.plist" "$gCloverDirectory/config.plist"
+    fi
 
     echo "To save a Copy of this Terminal session: Terminal/Shell/Export Text As ..."
 
