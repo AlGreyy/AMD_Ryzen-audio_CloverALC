@@ -712,12 +712,11 @@ echo "Error: macOS does not support dsdt/ALZA; install Clover patch or ssdt and 
 audiodevice=ALZA
 fi
 
-ioreg -rw 0 -p IODeviceTree -n AZAL > /tmp/HDEF.txt
-if [[ $(cat /tmp/HDEF.txt | grep -c "AZAL") != 0 ]]; then
-echo "Error: macOS does not support dsdt/AZAL;"
-echo "Your audio device (VendorID,ProductID): $(ioreg -rxn AZAL | grep IOName | sed -e 's/.*pci//' -e 's/"//') "
-audiodevice=AZAL
-amdpatch=0
+ioreg -rw 0 -p IODeviceTree -n D018 > /tmp/HDEF.txt
+if [[ $(cat /tmp/HDEF.txt | grep -c "D018") != 0 ]]; then
+echo "Error: macOS does not support dsdt/D018;"
+audiodevice=D018
+amdpatch=2
 fi
 
 ioreg -rw 0 -p IODeviceTree -n D01A > /tmp/HDEF.txt
@@ -728,11 +727,12 @@ audiodevice=D01A
 amdpatch=1
 fi
 
-ioreg -rw 0 -p IODeviceTree -n D018 > /tmp/HDEF.txt
-if [[ $(cat /tmp/HDEF.txt | grep -c "D018") != 0 ]]; then
-echo "Error: macOS does not support dsdt/D018;"
-audiodevice=D018
-amdpatch=2
+ioreg -rw 0 -p IODeviceTree -n AZAL > /tmp/HDEF.txt
+if [[ $(cat /tmp/HDEF.txt | grep -c "AZAL") != 0 ]]; then
+echo "Error: macOS does not support dsdt/AZAL;"
+echo "Your audio device (VendorID,ProductID): $(ioreg -rxn AZAL | grep IOName | sed -e 's/.*pci//' -e 's/"//') "
+audiodevice=AZAL
+amdpatch=0
 fi
 
 if [ $audiodevice = "none" ]; then
