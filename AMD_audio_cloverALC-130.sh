@@ -800,7 +800,7 @@ echo "[ADDED]"
 sudo rm -R /tmp/amdk2p.plist
 sudo rm -R /tmp/amdk2p2.plist
 echo ""
-echo "Reboot PC now."
+echo "Reboot and run the script again."
 fi
 
 sudo cp -R "/tmp/config.plist" "$gCloverDirectory/config.plist"
@@ -1036,7 +1036,7 @@ if [ -z "${gCodecsInstalled}" ]; then
     esac
 
     echo ""
-    echo "Reboot PC now."
+    echo "Reboot and run the script again."
 
     sudo cp -R "/tmp/config.plist" "$gCloverDirectory/config.plist"
     fi
